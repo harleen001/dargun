@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAGRUN — Cloud Data Engineering & Local AI Masterclass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#EDE8DA;
+    --cream-2:#E4DECC;
+    --ink:#121212;
+    --white:#FBFAF5;
+    --orange:#FF5A2B;
+    --orange-dark:#D9451B;
+    --purple:#6957E8;
+    --purple-dark:#4A3BC4;
+    --line:rgba(18,18,18,0.13);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--cream);color:var(--ink);
+    font-family:'Inter',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Archivo',sans-serif;font-weight:800;letter-spacing:-0.03em;margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 28px;}
+  @media(max-width:640px){.wrap{padding:0 20px;}}
+
+  /* halftone texture */
+  .dots{
+    background-image:radial-gradient(var(--ink) 1px, transparent 1.4px);
+    background-size:11px 11px;
+    opacity:0.06;
+  }
+  .halftone-orange{
+    background-image:radial-gradient(circle, var(--orange) 1.6px, transparent 1.9px);
+    background-size:9px 9px;
+  }
+  .halftone-purple{
+    background-image:radial-gradient(circle, var(--purple) 1.6px, transparent 1.9px);
+    background-size:9px 9px;
+  }
+
+  /* ---------- NAV ---------- */
+  /* ---------- TOP ANNOUNCEMENT BAR ---------- */
+  .topbar{
+    position:relative;z-index:51;background:var(--ink);color:var(--cream);
+    overflow:hidden;max-height:44px;transition:max-height .25s ease, padding .25s ease;
+  }
+  .topbar.hidden{max-height:0;}
+  .topbar-inner{
+    display:flex;align-items:center;justify-content:center;gap:16px;
+    padding:11px 28px;position:relative;
+  }
+  .topbar-text{font-family:'IBM Plex Mono';font-size:0.78rem;font-weight:600;text-align:center;color:var(--cream);}
+  .topbar-close{
+    position:absolute;right:28px;top:50%;transform:translateY(-50%);
+    background:none;border:none;color:rgba(237,232,218,0.6);font-size:0.9rem;cursor:pointer;
+    padding:4px 6px;line-height:1;transition:color .15s;
+  }
+  .topbar-close:hover{color:var(--orange);}
+  @media(max-width:640px){
+    .topbar-text{font-size:0.7rem;padding-right:26px;}
+    .topbar-inner{padding:10px 20px;}
+    .topbar-close{right:20px;}
+  }
+
+  header{position:sticky;top:0;z-index:50;background:rgba(237,232,218,0.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;max-width:1160px;margin:0 auto;}
+  .logo{display:flex;align-items:center;gap:9px;font-family:'Archivo';font-weight:900;font-size:1.25rem;}
+  .logo-mark{width:18px;height:18px;background:var(--orange);border-radius:4px 4px 4px 0;}
+  .nav-links{display:flex;gap:26px;font-size:0.92rem;font-weight:600;}
+  .nav-links a{text-decoration:none;opacity:0.72;transition:opacity .15s;}
+  .nav-links a:hover{opacity:1;}
+  .nav-cta{background:var(--ink);color:var(--cream);padding:11px 22px;border-radius:100px;font-size:0.88rem;font-weight:700;text-decoration:none;white-space:nowrap;}
+  .burger{display:none;background:none;border:none;cursor:pointer;font-size:1.4rem;}
+  @media(max-width:840px){.nav-links{display:none;}.burger{display:block;}}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:56px 0 40px;}
+  .hero-meta{display:flex;gap:16px;flex-wrap:wrap;font-family:'IBM Plex Mono';font-size:0.8rem;color:var(--orange-dark);margin-bottom:18px;font-weight:600;}
+  .hero-cd-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+  .cd-caption{font-family:'IBM Plex Mono';font-size:0.76rem;color:rgba(18,18,18,0.5);font-weight:600;}
+
+  /* ---------- COUNTDOWN DIGIT BOXES ---------- */
+  .cdbox{display:flex;align-items:center;gap:5px;}
+  .cd-unit{display:flex;flex-direction:column;align-items:center;min-width:38px;}
+  .cd-num{
+    font-family:'IBM Plex Mono';font-weight:700;font-size:1.02rem;background:none;color:var(--orange-dark);
+    padding:0;border-radius:0;min-width:32px;text-align:center;
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1);
+    font-variant-numeric:tabular-nums;
+  }
+  .cd-num.tick{transform:scale(1.18);}
+  .cd-lbl{font-size:0.56rem;letter-spacing:0.03em;color:rgba(18,18,18,0.42);margin-top:4px;font-family:'IBM Plex Mono';text-transform:uppercase;}
+  .cd-sep{font-family:'IBM Plex Mono';font-weight:700;color:rgba(18,18,18,0.28);padding-bottom:16px;font-size:1rem;animation:cdblink 1s steps(1) infinite;}
+  @keyframes cdblink{50%{opacity:0.2;}}
+  .cdbox.theme-light .cd-num{background:none;color:var(--white);}
+  .cdbox.theme-light .cd-lbl{color:rgba(255,255,255,0.72);}
+  .cdbox.theme-light .cd-sep{color:rgba(255,255,255,0.5);}
+  .cdbox.cd-lg .cd-num{font-size:1.02rem;padding:0;min-width:32px;border-radius:0;}
+  .cdbox.cd-lg .cd-lbl{font-size:0.56rem;}
+  .cdbox.cd-lg .cd-sep{font-size:1rem;padding-bottom:16px;}
+  @media(max-width:480px){
+    .cdbox.cd-lg .cd-num{font-size:0.92rem;padding:0;min-width:28px;}
+    .cdbox.cd-lg .cd-sep{font-size:0.9rem;padding-bottom:14px;}
+  }
+  .hero-shape{
+    position:relative;background:var(--white);border-radius:0 40px 40px 40px;
+    padding:52px 44px 200px;overflow:hidden;
+  }
+  .hero-shape h1{font-size:clamp(2.2rem,5vw,3.7rem);line-height:1.02;max-width:11ch;position:relative;z-index:2;}
+  .hero-graphic{
+    position:absolute;right:0;top:0;bottom:0;width:56%;
+    background:
+      radial-gradient(circle at 30% 30%, var(--purple) 0%, transparent 55%),
+      radial-gradient(circle at 70% 70%, var(--orange) 0%, transparent 55%);
+    border-radius:0 40px 40px 0;
+  }
+  @media(max-width:900px){
+    .hero-graphic{display:none;}
+    .hero-shape{padding:36px 26px 40px;border-radius:0 26px 26px 26px;}
+    .hero-shape h1{max-width:none;}
+    .hero-sub-row{align-items:flex-start;}
+    .hero-sub-row p{max-width:none;}
+  }
+  @media(max-width:480px){
+    .hero-shape{padding:30px 20px 32px;}
+    .hero-actions{width:100%;}
+    .hero-actions a{flex:1;text-align:center;}
+  }
+  .hero-graphic .hd{position:absolute;inset:0;border-radius:inherit;}
+  .hero-sub-row{
+    position:relative;z-index:2;margin-top:26px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  }
+  .hero-sub-row p{max-width:38ch;color:rgba(18,18,18,0.68);margin:0;font-size:0.98rem;}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .btn-orange{background:var(--orange);color:var(--white);padding:13px 24px;border-radius:100px;font-weight:700;text-decoration:none;font-size:0.94rem;border:none;cursor:pointer;display:inline-block;transition:transform .15s;}
+  .btn-orange:hover{transform:translateY(-2px);}
+  .btn-outline{border:1.5px solid var(--ink);color:var(--ink);padding:12px 22px;border-radius:100px;font-weight:700;text-decoration:none;font-size:0.94rem;display:inline-block;}
+
+  /* stat cards row (below hero) */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px;}
+  @media(max-width:760px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{background:var(--orange);color:var(--white);border-radius:16px;padding:20px 20px 18px;transition:transform .18s ease, box-shadow .18s ease;}
+  .stat-card:hover{transform:translateY(-4px);box-shadow:0 10px 24px rgba(217,69,27,0.28);}
+  .stat-card .lbl{font-size:0.76rem;font-weight:600;opacity:0.85;margin-bottom:8px;}
+  .stat-card .num{font-family:'Archivo';font-weight:900;font-size:1.9rem;}
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{padding:84px 0;}
+  @media(max-width:640px){section{padding:56px 0;}}
+  .section-head{max-width:640px;margin-bottom:46px;}
+  .kicker{font-family:'IBM Plex Mono';font-size:0.78rem;color:var(--purple-dark);margin-bottom:10px;font-weight:600;}
+  .section-head h2{font-size:clamp(1.8rem,3.4vw,2.5rem);}
+  .section-head p{margin-top:14px;color:rgba(18,18,18,0.62);font-size:1.02rem;}
+
+  /* ---------- ABOUT: split w/ isometric graphic ---------- */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--white);border-radius:28px;overflow:hidden;}
+  @media(max-width:840px){.split{grid-template-columns:1fr;}}
+  .split-text{padding:52px 48px;}
+  @media(max-width:640px){.split-text{padding:36px 26px;}}
+  .split-text h2{font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:16px;}
+  .split-text p{color:rgba(18,18,18,0.65);margin:0 0 14px;}
+  .iso-panel{background:var(--purple);min-height:340px;display:flex;align-items:center;justify-content:center;padding:30px;}
+  @media(max-width:480px){.iso-panel{min-height:240px;padding:20px;}}
+
+  /* ---------- CURRICULUM ---------- */
+  .tabs{display:flex;gap:8px;margin-bottom:36px;flex-wrap:wrap;}
+  .tab-btn{background:var(--white);border:1.5px solid var(--line);padding:11px 20px;border-radius:100px;font-family:'Archivo';font-weight:700;font-size:0.9rem;cursor:pointer;color:var(--ink);transition:all .15s;}
+  .tab-btn.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+  .day-panel{display:none;}
+  .day-panel.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .day-card{background:var(--white);border-radius:24px;padding:40px;}
+  @media(max-width:640px){.day-card{padding:26px 22px;}}
+  .day-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap;}
+  .day-head .day-no{font-family:'IBM Plex Mono';color:var(--orange-dark);font-size:0.85rem;font-weight:600;}
+  .day-head h3{font-size:1.5rem;}
+  .day-sub{color:rgba(18,18,18,0.58);margin-bottom:30px;}
+  .day-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+  @media(max-width:840px){.day-cols{grid-template-columns:1fr;}}
+  .day-col h4{font-size:0.78rem;font-family:'IBM Plex Mono';color:rgba(18,18,18,0.45);margin-bottom:14px;font-weight:600;}
+  .day-col ul{margin:0;padding:0;list-style:none;}
+  .day-col li{padding:12px 0;border-top:1px solid var(--line);font-size:0.94rem;color:rgba(18,18,18,0.78);}
+  .day-col li:last-child{padding-bottom:0;}
+  .deliverable{margin-top:16px;background:var(--purple);color:var(--white);border-radius:14px;padding:14px 16px;font-family:'IBM Plex Mono';font-size:0.82rem;}
+  .deliverable span{color:#FFD9A0;}
+
+  /* ---------- OUTCOMES ---------- */
+  .outcomes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+  @media(max-width:900px){.outcomes-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:520px){.outcomes-grid{grid-template-columns:1fr;}}
+  .outcome{background:var(--white);border-radius:18px;padding:26px 22px;}
+  .outcome .mark{width:36px;height:36px;border-radius:9px 9px 9px 0;background:var(--orange);display:flex;align-items:center;justify-content:center;color:var(--white);font-family:'Archivo';font-weight:800;margin-bottom:16px;font-size:0.85rem;}
+  .outcome h4{font-size:1rem;font-family:'Archivo';margin-bottom:6px;}
+  .outcome p{font-size:0.88rem;color:rgba(18,18,18,0.58);margin:0;}
+
+  /* ---------- TOOLS LOGO GRID ---------- */
+  .tools-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  @media(max-width:760px){.tools-grid{grid-template-columns:repeat(2,1fr);}}
+  .tool-chip{background:var(--white);border-radius:14px;padding:20px 16px;text-align:center;font-family:'Archivo';font-weight:800;font-size:0.95rem;transition:background .18s ease, color .18s ease, transform .18s ease;cursor:default;}
+  .tool-chip:hover{background:var(--purple);color:var(--white);transform:translateY(-3px);}
+
+  /* ---------- PRICING (purple, cut corner) ---------- */
+  .pricing-card{
+    background:var(--purple);color:var(--white);border-radius:0 36px 36px 36px;
+    padding:48px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;position:relative;overflow:hidden;
+  }
+  @media(max-width:840px){.pricing-card{grid-template-columns:1fr;padding:32px 26px;border-radius:0 24px 24px 24px;}}
+  .price-tag{font-family:'Archivo';font-weight:900;font-size:3.8rem;}
+  .price-tag sup{font-size:1.4rem;top:-1.6rem;}
+  .price-note{color:rgba(255,255,255,0.68);font-size:0.95rem;margin-top:8px;}
+  .price-list{list-style:none;margin:0;padding:0;}
+  .price-list li{padding:10px 0;border-top:1px solid rgba(255,255,255,0.18);font-size:0.95rem;display:flex;gap:10px;}
+  .price-list li:first-child{border-top:none;}
+  .check{color:var(--orange);font-family:'IBM Plex Mono';font-weight:700;}
+
+  /* ---------- LEADERBOARD ---------- */
+  .lb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  @media(max-width:840px){.lb-grid{grid-template-columns:1fr;}}
+  .lb-col{background:var(--white);border-radius:18px;padding:24px;}
+  .lb-col-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .lb-col-head h4{font-family:'Archivo';font-size:1.05rem;}
+  .lb-col-head span{font-family:'IBM Plex Mono';font-size:0.72rem;color:var(--orange-dark);font-weight:600;}
+  .lb-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px dashed var(--line);font-size:0.88rem;color:rgba(18,18,18,0.42);}
+  .lb-row:first-child{border-top:none;}
+  .lb-rank{font-family:'IBM Plex Mono';width:20px;color:rgba(18,18,18,0.3);}
+
+  /* ---------- REGISTER STEPS ---------- */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  @media(max-width:840px){.steps{grid-template-columns:1fr;}}
+  .step{background:var(--white);border-radius:18px;padding:24px;}
+  .step-no{width:36px;height:36px;border-radius:9px 9px 9px 0;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:'Archivo';font-weight:800;margin-bottom:16px;font-size:0.9rem;}
+  .step h4{font-size:1rem;margin-bottom:8px;font-family:'Archivo';}
+  .step p{font-size:0.88rem;color:rgba(18,18,18,0.58);margin:0;}
+  .register-cta{margin-top:20px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;background:var(--ink);color:var(--cream);border-radius:0 24px 24px 24px;padding:34px 38px;}
+  .deadline-banner{
+    margin-top:16px;background:var(--orange);color:var(--white);border-radius:14px;
+    padding:14px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+    font-weight:700;font-size:0.92rem;
+  }
+  @media(max-width:480px){.deadline-banner{flex-direction:column;align-items:flex-start;text-align:left;}}
+  .register-cta .txt{flex:1;min-width:220px;}
+  .register-cta h3{font-size:1.3rem;margin-bottom:6px;}
+  .register-cta p{color:rgba(237,232,218,0.65);font-size:0.9rem;margin:0;}
+
+  /* ---------- FAQ ---------- */
+  .faq details{border-top:1px solid var(--line);padding:18px 0;}
+  .faq details:last-child{border-bottom:1px solid var(--line);}
+  .faq summary{cursor:pointer;font-family:'Archivo';font-weight:700;font-size:1.02rem;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  .faq summary::-webkit-details-marker{display:none;}
+  .faq summary::after{content:'+';font-size:1.3rem;color:var(--orange);transition:transform .2s;}
+  .faq details[open] summary::after{transform:rotate(45deg);}
+  .faq .faq-a{margin-top:12px;color:rgba(18,18,18,0.6);font-size:0.94rem;max-width:65ch;}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink);color:rgba(237,232,218,0.6);padding:44px 0;border-radius:36px 36px 0 0;margin-top:20px;}
+  .foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;margin-bottom:32px;}
+  .foot-logo{color:var(--cream);font-family:'Archivo';font-weight:900;font-size:1.3rem;display:flex;align-items:center;gap:9px;}
+  .contact-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .contact-lbl{font-family:'IBM Plex Mono';font-size:0.76rem;color:rgba(237,232,218,0.5);}
+  .contact-row a{
+    background:rgba(237,232,218,0.08);border:1px solid rgba(237,232,218,0.18);
+    padding:9px 16px;border-radius:100px;font-size:0.85rem;font-weight:600;
+    color:var(--cream);text-decoration:none;transition:background .15s;
+    position:relative;
+  }
+  .contact-row a:hover{background:var(--orange);border-color:var(--orange);}
+  .contact-row a::after{
+    content:'Copied!';position:absolute;top:-30px;left:50%;transform:translateX(-50%) translateY(4px);
+    background:var(--orange);color:var(--white);font-size:0.72rem;padding:4px 10px;border-radius:100px;
+    opacity:0;pointer-events:none;transition:opacity .15s ease, transform .15s ease;white-space:nowrap;
+  }
+  .contact-row a.copied::after{opacity:1;transform:translateX(-50%) translateY(0);}
+  .foot-bottom{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:0.82rem;border-top:1px solid rgba(237,232,218,0.12);padding-top:20px;}
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <div class="wrap topbar-inner">
+    <span class="topbar-text">Registration closes 5 September, 11:00 PM — don't miss the cohort</span>
+    <button class="topbar-close" id="topbar-close" aria-label="Dismiss announcement">✕</button>
+  </div>
+</div>
+
+<header>
+  <div class="nav">
+    <div class="logo"><span class="logo-mark"></span>DAGRUN</div>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#curriculum">Curriculum</a>
+      <a href="#outcomes">What you get</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#leaderboard">Leaderboard</a>
+    </nav>
+    <a class="nav-cta" href="#register">Register — ₹499</a>
+    <button class="burger" onclick="const n=document.querySelector('.nav-links');n.style.display=n.style.display==='flex'?'none':'flex'">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-meta">
+      <span>SEPT 6–8, 2026</span><span>·</span><span>6:00–8:00 PM DAILY</span>
+    </div>
+    <div class="hero-cd-row">
+      <span class="cd-caption">Registration closes in</span>
+      <div class="cdbox" id="hero-cd">
+        <div class="cd-unit"><span class="cd-num" data-u="d">00</span><span class="cd-lbl">days</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="h">00</span><span class="cd-lbl">hrs</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="m">00</span><span class="cd-lbl">min</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="s">00</span><span class="cd-lbl">sec</span></div>
+      </div>
+    </div>
+    <div class="hero-shape">
+      <div class="hero-graphic"><div class="hd halftone-purple" style="opacity:.35;"></div></div>
+      <h1>Build a real cloud data pipeline. Ship your own AI agent.</h1>
+      <div class="hero-sub-row">
+        <p>A hands-on masterclass in Databricks, Snowflake and local AI agents — taught by two engineers who wanted the workshop they never got in college.</p>
+        <div class="hero-actions">
+          <a class="btn-orange" href="#register">Register — ₹499</a>
+          <a class="btn-outline" href="#curriculum">See the plan</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="lbl">Duration</div><div class="num">3 Days</div></div>
+      <div class="stat-card"><div class="lbl">Live Instruction</div><div class="num">6 Hrs</div></div>
+      <div class="stat-card"><div class="lbl">Full Price</div><div class="num">₹499</div></div>
+      <div class="stat-card"><div class="lbl">Portfolio Projects</div><div class="num">1</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">what this is</div>
+      <h2>Not another "intro to AI" webinar</h2>
+    </div>
+    <div class="split">
+      <div class="split-text">
+        <h2>The classroom nobody gave us</h2>
+        <p>Most workshops show you slides. This one puts you inside a real Databricks workspace on day one, a live Snowflake warehouse on day two, and a local AI agent you built yourself by day three — no cloud API keys, no vendor lock-in, full data privacy.</p>
+        <p>It's run by two friends who kept meeting data engineers who learned everything on the job, because nobody taught this in a classroom. So we built the classroom.</p>
+        <a class="btn-outline" href="#curriculum">Walk through the 3 days</a>
+      </div>
+      <div class="iso-panel">
+        <svg viewBox="0 0 320 300" width="100%" style="max-width:300px;">
+          <!-- isometric stacked cubes, black outline, orange/cream faces -->
+          <g stroke="#121212" stroke-width="2.5" stroke-linejoin="round">
+            <!-- bottom cube -->
+            <polygon points="160,190 220,220 160,250 100,220" fill="#EDE8DA"/>
+            <polygon points="100,220 160,250 160,300 100,270" fill="#D9451B"/>
+            <polygon points="220,220 160,250 160,300 220,270" fill="#FF5A2B"/>
+            <!-- middle cube -->
+            <polygon points="160,120 220,150 160,180 100,150" fill="#FBFAF5"/>
+            <polygon points="100,150 160,180 160,230 100,200" fill="#FF5A2B"/>
+            <polygon points="220,150 160,180 160,230 220,200" fill="#D9451B"/>
+            <!-- top cube -->
+            <polygon points="160,50 220,80 160,110 100,80" fill="#EDE8DA"/>
+            <polygon points="100,80 160,110 160,160 100,130" fill="#FBFAF5"/>
+            <polygon points="220,80 160,110 160,160 220,130" fill="#EDE8DA"/>
+            <!-- connecting arms -->
+            <line x1="70" y1="150" x2="100" y2="150" />
+            <line x1="250" y1="150" x2="220" y2="150" />
+            <circle cx="60" cy="150" r="10" fill="#FF5A2B"/>
+            <circle cx="260" cy="150" r="10" fill="#FBFAF5"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="curriculum">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">the plan</div>
+      <h2>Three days. Each one ends with something you built</h2>
+      <p>Every session follows the same rhythm: the theory behind why it matters, a live hands-on lab, and a deliverable you keep.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showDay(1,this)">Day 1 — Databricks</button>
+      <button class="tab-btn" onclick="showDay(2,this)">Day 2 — Snowflake & SQL</button>
+      <button class="tab-btn" onclick="showDay(3,this)">Day 3 — Local AI Agents</button>
+    </div>
+
+    <div class="day-panel active" id="day-1">
+      <div class="day-card">
+        <div class="day-head"><span class="day-no">SEPT 6</span><h3>Cloud Data Engineering & Databricks Fundamentals</h3></div>
+        <p class="day-sub">Why cloud computing exists for modern data systems, and your first working pipeline.</p>
+        <div class="day-cols">
+          <div class="day-col"><h4>CORE CONCEPTS</h4><ul>
+            <li>Why cloud computing is necessary for large-scale data systems</li>
+            <li>How data travels: ingestion, network transfer, landing zones</li>
+            <li>ETL vs. ELT — modern pipeline architecture</li>
+          </ul></div>
+          <div class="day-col"><h4>HANDS-ON LAB</h4><ul>
+            <li>Databricks workspace walkthrough & environment setup</li>
+            <li>Data cleaning, filtering, and core transformations</li>
+            <li>Structured exercises on real raw datasets</li>
+          </ul></div>
+          <div class="day-col"><h4>CAREER CONTEXT</h4><ul>
+            <li>Where Databricks skills show up in real data engineering roles</li>
+            <li>How this fits into a data engineer's career path</li>
+          </ul>
+          <div class="deliverable"><span>deliverable →</span> a cleaned, transformed dataset pipeline built inside Databricks</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-panel" id="day-2">
+      <div class="day-card">
+        <div class="day-head"><span class="day-no">SEPT 7</span><h3>Cloud Warehousing, Snowflake & SQL Mastery</h3></div>
+        <p class="day-sub">From data lakes to warehouses — and writing SQL that actually answers questions.</p>
+        <div class="day-cols">
+          <div class="day-col"><h4>CORE CONCEPTS</h4><ul>
+            <li>Data lakes vs. data warehouses vs. lakehouses</li>
+            <li>Snowflake architecture and data mining fundamentals</li>
+          </ul></div>
+          <div class="day-col"><h4>HANDS-ON LAB</h4><ul>
+            <li>Live demo: virtual warehouses & stage setup in Snowflake</li>
+            <li>SQL lab — advanced queries, manipulations, aggregations</li>
+          </ul></div>
+          <div class="day-col"><h4>CAREER CONTEXT</h4><ul>
+            <li>Industry roles for SQL and Snowflake specialists</li>
+            <li>Setup instructions for Day 3, sent at the end of class</li>
+          </ul>
+          <div class="deliverable"><span>deliverable →</span> structured SQL scripts + a working data warehouse setup</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-panel" id="day-3">
+      <div class="day-card">
+        <div class="day-head"><span class="day-no">SEPT 8</span><h3>The Wow Day — Local AI, Autonomous Agents & Privacy</h3></div>
+        <p class="day-sub">Data as the real asset — and agents that act on it without ever leaving your machine.</p>
+        <div class="day-cols">
+          <div class="day-col"><h4>CORE CONCEPTS</h4><ul>
+            <li>Data as the ultimate modern strategic resource</li>
+            <li>Local execution vs. cloud APIs (ChatGPT, Claude, LM Studio)</li>
+            <li>Standard AI models vs. autonomous agents that self-schedule</li>
+          </ul></div>
+          <div class="day-col"><h4>HANDS-ON LAB</h4><ul>
+            <li>Running local LLMs via LM Studio, wired up over API</li>
+            <li>Building an autonomous agent for automated data tasks</li>
+          </ul></div>
+          <div class="day-col"><h4>SHOWCASE & WRAP</h4><ul>
+            <li>Final project showcase — your pipeline + your agent, live</li>
+            <li>Networking, next steps, certificates handed out</li>
+          </ul>
+          <div class="deliverable"><span>deliverable →</span> an end-to-end pipeline integrated with your own AI agent</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="outcomes">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">what you leave with</div>
+      <h2>More than a certificate</h2>
+      <p>A project you can actually talk about in an interview.</p>
+    </div>
+    <div class="outcomes-grid">
+      <div class="outcome"><div class="mark">01</div><h4>A portfolio project</h4><p>An end-to-end pipeline plus an AI agent, built by you, not copy-pasted.</p></div>
+      <div class="outcome"><div class="mark">02</div><h4>A completion certificate</h4><p>Proof of 6 hours of hands-on Databricks, Snowflake, and agent-building work.</p></div>
+      <div class="outcome"><div class="mark">03</div><h4>Job-ready basics</h4><p>The exact tools listed in most data engineering and AI job postings today.</p></div>
+      <div class="outcome"><div class="mark">04</div><h4>A community</h4><p>A WhatsApp group with everyone in your cohort, for questions long after Day 3.</p></div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <div class="tools-grid">
+        <div class="tool-chip">Databricks</div>
+        <div class="tool-chip">Snowflake</div>
+        <div class="tool-chip">SQL</div>
+        <div class="tool-chip">LM Studio</div>
+        <div class="tool-chip">AI Agents</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">pricing</div>
+      <h2>₹499. About what you'd spend on coffee this week</h2>
+    </div>
+    <div class="pricing-card">
+      <div class="halftone-orange" style="position:absolute;inset:0;opacity:.12;"></div>
+      <div style="position:relative;">
+        <div class="price-tag"><sup>₹</sup>499</div>
+        <div class="price-note">one-time · covers all 3 days</div>
+      </div>
+      <ul class="price-list" style="position:relative;">
+        <li><span class="check">✓</span> 3 live sessions, 2 hours each (Sept 6–8)</li>
+        <li><span class="check">✓</span> Databricks + Snowflake + local AI agent labs</li>
+        <li><span class="check">✓</span> A portfolio project you keep and can showcase</li>
+        <li><span class="check">✓</span> Completion certificate</li>
+        <li><span class="check">✓</span> Access to the cohort WhatsApp group</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="leaderboard">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">leaderboard</div>
+      <h2>Who showed up, who shipped</h2>
+      <p>Names go up here at the end of each day — added by hand, right after class.</p>
+    </div>
+    <div class="lb-grid">
+      <div class="lb-col"><div class="lb-col-head"><h4>Day 1</h4><span>SEPT 6</span></div><div id="lb-day1"></div></div>
+      <div class="lb-col"><div class="lb-col-head"><h4>Day 2</h4><span>SEPT 7</span></div><div id="lb-day2"></div></div>
+      <div class="lb-col"><div class="lb-col-head"><h4>Day 3</h4><span>SEPT 8</span></div><div id="lb-day3"></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="register">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">how to join</div>
+      <h2>Four steps. Ten minutes. You're in</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-no">1</div><h4>Read the plan</h4><p>You're already here — you now know exactly what happens each day.</p></div>
+      <div class="step"><div class="step-no">2</div><h4>Fill the form</h4><p>Open the registration form below and fill in your details.</p></div>
+      <div class="step"><div class="step-no">3</div><h4>Pay ₹499</h4><p>Scan the QR code inside the form itself to complete payment.</p></div>
+      <div class="step"><div class="step-no">4</div><h4>Get the group link</h4><p>Complete the form correctly and you'll receive the WhatsApp group link.</p></div>
+    </div>
+
+    <div class="deadline-banner">
+      <span>Registration closes 5 September, 11:00 PM</span>
+      <div class="cdbox cd-lg theme-light" id="reg-cd">
+        <div class="cd-unit"><span class="cd-num" data-u="d">00</span><span class="cd-lbl">days</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="h">00</span><span class="cd-lbl">hrs</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="m">00</span><span class="cd-lbl">min</span></div>
+        <div class="cd-sep">:</div>
+        <div class="cd-unit"><span class="cd-num" data-u="s">00</span><span class="cd-lbl">sec</span></div>
+      </div>
+    </div>
+
+    <div class="register-cta">
+      <div class="txt">
+        <h3>Ready to register?</h3>
+        <p>Registration, payment, and the WhatsApp group link are all handled inside the form.</p>
+      </div>
+      <a class="btn-orange" id="form-link" href="https://forms.gle/REPLACE_WITH_YOUR_FORM_LINK" target="_blank" rel="noopener">Open registration form →</a>
+    </div>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">questions</div>
+      <h2>Before you register</h2>
+    </div>
+    <details open>
+      <summary>Do I need prior experience with data engineering or AI?</summary>
+      <p class="faq-a">No. We start from "what is cloud computing and why does it matter" and build up from there. If you're comfortable with basic programming logic, you're ready.</p>
+    </details>
+    <details>
+      <summary>What do I need installed before Day 1?</summary>
+      <p class="faq-a">A laptop and a stable internet connection for Days 1–2. Setup instructions for Day 3's local AI tools (LM Studio) are shared at the end of Day 2.</p>
+    </details>
+    <details>
+      <summary>What if I miss a session?</summary>
+      <p class="faq-a">Each day builds on the last, so we recommend attending all three live. If you miss one, message the group and we'll help you catch up.</p>
+    </details>
+    <details>
+      <summary>How does payment work?</summary>
+      <p class="faq-a">Everything happens inside the registration form — you'll scan a QR code right there to pay the ₹499 fee. Once your form is submitted correctly, you'll get the WhatsApp group link.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-logo"><span class="logo-mark"></span>DAGRUN</div>
+      <div class="contact-row">
+        <div class="contact-lbl">Questions?</div>
+        <a href="mailto:harleen.johal31@gmail.com" class="copy-email" data-email="harleen.johal31@gmail.com">harleen.johal31@gmail.com</a>
+        <a href="mailto:imanpal.125@gmail.com" class="copy-email" data-email="imanpal.125@gmail.com">imanpal.125@gmail.com</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>Sept 6–8, 2026 · Built by two friends who like data pipelines</div>
+      <a href="#register" style="color:var(--cream);font-weight:700;">Register — ₹499</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function showDay(n, btn){
+    document.querySelectorAll('.day-panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('day-'+n).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ---- dismissible top announcement bar ----
+  const topbar = document.getElementById('topbar');
+  const topbarClose = document.getElementById('topbar-close');
+  if(topbarClose){
+    topbarClose.addEventListener('click', ()=>{
+      topbar.classList.add('hidden');
+    });
+  }
+
+  // ---- live digit-box countdown, updates every second ----
+  const REG_DEADLINE = new Date('2026-09-05T23:00:00+05:30').getTime();
+
+  function pad(n){ return String(n).padStart(2,'0'); }
+
+  function renderCountdown(containerId, targetTime, expiredText){
+    const box = document.getElementById(containerId);
+    if(!box) return;
+    const nums = {
+      d: box.querySelector('[data-u="d"]'),
+      h: box.querySelector('[data-u="h"]'),
+      m: box.querySelector('[data-u="m"]'),
+      s: box.querySelector('[data-u="s"]'),
+    };
+    let last = {d:null,h:null,m:null,s:null};
+
+    function tick(){
+      const diff = targetTime - Date.now();
+      if(diff <= 0){
+        box.innerHTML = '<span style="font-family:\'Archivo\';font-weight:800;">'+expiredText+'</span>';
+        clearInterval(timer);
+        return;
+      }
+      const d = Math.floor(diff/(1000*60*60*24));
+      const h = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+      const m = Math.floor((diff%(1000*60*60))/(1000*60));
+      const s = Math.floor((diff%(1000*60))/1000);
+      const vals = {d:pad(d),h:pad(h),m:pad(m),s:pad(s)};
+
+      Object.keys(vals).forEach(u=>{
+        if(vals[u] !== last[u]){
+          nums[u].textContent = vals[u];
+          nums[u].classList.remove('tick');
+          void nums[u].offsetWidth; // restart animation
+          nums[u].classList.add('tick');
+          last[u] = vals[u];
+        }
+      });
+    }
+    tick();
+    const timer = setInterval(tick, 1000);
+  }
+
+  renderCountdown('hero-cd', REG_DEADLINE, 'Registration closed');
+  renderCountdown('reg-cd', REG_DEADLINE, 'Registration closed');
+
+  // ---- copy email to clipboard ----
+  document.querySelectorAll('.copy-email').forEach(link=>{
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      const email = this.dataset.email;
+      navigator.clipboard.writeText(email).then(()=>{
+        this.classList.add('copied');
+        setTimeout(()=> this.classList.remove('copied'), 1400);
+      }).catch(()=>{
+        window.location.href = 'mailto:'+email;
+      });
+    });
+  });
+
+  ['lb-day1','lb-day2','lb-day3'].forEach(id=>{
+    const col = document.getElementById(id);
+    for(let i=1;i<=8;i++){
+      const row = document.createElement('div');
+      row.className='lb-row';
+      row.innerHTML = '<span class="lb-rank">'+i+'</span><span>Coming soon</span>';
+      col.appendChild(row);
+    }
+  });
+</script>
+
+</body>
+</html>
